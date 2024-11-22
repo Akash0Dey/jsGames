@@ -77,7 +77,7 @@ function showEmoji(n, row) {
   return flippedCard[position - 1] === '0' ? tile : emoji;
 }
 
-function widing(word, wide, character) {
+function adjustString(word, wide, character) {
   if (wide - word.length === 0) {
     return word;
   }
@@ -86,7 +86,7 @@ function widing(word, wide, character) {
     return word + character;
   }
 
-  return widing(character + word + character, wide, character);
+  return adjustString(character + word + character, wide, character);
 }
 
 function lineMaker(n, wide) {
@@ -94,7 +94,7 @@ function lineMaker(n, wide) {
     return '';
   }
 
-  return widing('', wide, top) + plus + lineMaker(n - 1, wide);
+  return adjustString('', wide, top) + plus + lineMaker(n - 1, wide);
 }
 
 function drawMid(n, wide, row) {
@@ -102,7 +102,7 @@ function drawMid(n, wide, row) {
     return '';
   }
 
-  return widing(showEmoji(n, row), wide, SPACE) + side + drawMid(n - 1, wide, row);
+  return adjustString(showEmoji(n, row), wide, SPACE) + side + drawMid(n - 1, wide, row);
 }
 
 function flippingCard(position) {
@@ -115,7 +115,6 @@ function flippingCard(position) {
     const isSame = emojiPosition(position) === emojiPosition(lastEntry);
 
     if (!isSame) {
-      console.clear();
       updateBoard(2, 4, 2);
       wait(20000);
       flipCard(position, 0);
@@ -145,23 +144,41 @@ function randomTile() {
   fourth2 = newRandom(8, takenNum);
 }
 
+function topPositionReference(wide, gap) {
+  let top = adjustString('', gap, SPACE) + side;
+  top += adjustString('1️⃣', wide + 2, SPACE) + side;
+  top += adjustString('2️⃣', wide + 2, SPACE) + side;
+  top += adjustString('3️⃣', wide + 2, SPACE) + side;
+  top += adjustString('4️⃣', wide + 2, SPACE) + side;
+
+  return top;
+}
+
+function bottomPositionReference(wide, gap) {
+  let top = adjustString('', gap, SPACE) + side;
+  top += adjustString('5️⃣', wide + 2, SPACE) + side;
+  top += adjustString('6️⃣', wide + 2, SPACE) + side;
+  top += adjustString('7️⃣', wide + 2, SPACE) + side;
+  top += adjustString('8️⃣', wide + 2, SPACE) + side;
+
+  return top;
+}
+
 function updateBoard(r = 3, c = 3, gap = 16) {
   const wide = 4;
-  const divider = widing('', gap, SPACE) + plus + lineMaker(c, wide);
-  console.log();
-  console.log("Press 10 to quit.  Score : ", 100 - move);
-  console.log();
-  console.log(widing('', gap, SPACE) + side + widing('1️⃣', wide + 2, SPACE) + side + widing('2️⃣', wide + 2, SPACE) + side + widing('3️⃣', wide + 2, SPACE) + side + widing('4️⃣', wide + 2, SPACE) + side );
-  console.log(divider);
+  const divider = adjustString('', gap, SPACE) + plus + lineMaker(c, wide);
+  let gameBoard = "Press 10 to quit.  Score : " + (100 - move) + '\n\n';
+  gameBoard += topPositionReference(wide, gap) + ' \n' + divider;
   
   for (let row = 0; row < r; row++) {
-    const middle = widing('', gap, SPACE) + side + drawMid(c, wide, row);
-    console.log(middle);
-    console.log(divider);
+    const middle = adjustString('', gap, SPACE) + side + drawMid(c, wide, row);
+    gameBoard += '\n' + middle;
+    gameBoard += '\n' + divider;
   }
   
-  console.log(widing('', gap, SPACE) + side + widing('5️⃣', wide + 2, SPACE) + side + widing('6️⃣', wide + 2, SPACE) + side + widing('7️⃣', wide + 2, SPACE) + side + widing('8️⃣', wide + 2, SPACE) + side );
-  console.log();
+  gameBoard += '\n' + bottomPositionReference(wide, gap) + '\n';
+  console.clear();
+  console.log(gameBoard);
 }
 
 function startGame() {
@@ -170,7 +187,6 @@ function startGame() {
   let wantToQuit = false;
   
   while (flippedCard !== '11111111' && !wantToQuit) {
-    console.clear();
     updateBoard(2, 4, 2);
     const position = +prompt(" position : " );
     wantToQuit = position === 10;
@@ -182,7 +198,6 @@ function startGame() {
     flippingCard(position);
   }
   
-  console.clear();
   updateBoard(2, 4, 2);
 }
 
